@@ -10,7 +10,8 @@ class ChatBotAdapter:
     def __init__(self, pdf_context):
         self.pdf_context = pdf_context
         self.template = """
-            Você é um assistente virtual para esclarecer dúvidas sobre o aplicativo Fretai que está no contexto extraído dos PDFs.
+            Você é um assistente virtual para esclarecer dúvidas sobre o aplicativo Fretai que está no contexto extraído dos PDFs. 
+            Caso não saiba a resposta não cite os PDFs
 
             Contexto extraído dos PDFs:
             {pdf_context}

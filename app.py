@@ -7,49 +7,52 @@ from adapters.chatbot_adapter import ChatBotAdapter
 # Carrega variáveis de ambiente
 load_dotenv()
 
-# Função principal
-def main():
-    st.set_page_config(page_title="Fretai Bot", page_icon="🤖")
-    st.title("Fretai Bot")
 
-    # Inicializa sessão
+def main():
+    st.set_page_config(page_title="Fretai Bot", page_icon="🚌")
+    st.title("Fretai Bot  🚌")
+
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = []
+        st.session_state.chat_history = []  # Lista para armazenar o histórico completo (perguntas e respostas)
     if "pdf_context" not in st.session_state:
         st.session_state.pdf_context = ""
 
-    # Carrega contexto dos PDFs (somente na primeira execução)
+    # Carrega contexto dos PDFs 
     if not st.session_state.pdf_context:
         pdf_loader = PDFContextLoader(folder_path="data")
         st.session_state.pdf_context = pdf_loader.load_context()
-        st.success("Contexto dos PDFs carregado com sucesso!")
+
+    if len(st.session_state.chat_history) == 0:
+        welcome_message = "Bem-vindo ao chat do Fretai. Como posso te ajudar?"
+        st.session_state.chat_history.append(AIMessage(welcome_message))
 
     # Configura o chatbot
     chatbot = ChatBotAdapter(st.session_state.pdf_context)
 
-    # Exibe histórico de mensagens
+    # Exibe histórico completo de mensagens
     for message in st.session_state.chat_history:
         if isinstance(message, HumanMessage):
-            with st.chat_message("Human"):
+            with st.chat_message("user"):
                 st.markdown(message.content)
-        else:
-            with st.chat_message("AI"):
+        elif isinstance(message, AIMessage):
+            with st.chat_message("assistant"):
                 st.markdown(message.content)
 
-    # Processa entrada do usuário
-    user_query = st.chat_input("Sua Mensagem")
+    user_query = st.chat_input("Digite sua mensagem aqui...")
     if user_query and user_query.strip():
-        st.session_state.chat_history.append(HumanMessage(user_query))
-        with st.chat_message("Human"):
+        st.session_state.chat_history.append(HumanMessage(user_query)) # Mensagem do Usuário
+        with st.chat_message("user"):
             st.markdown(user_query)
 
-        with st.chat_message("AI"):
-            ai_response = chatbot.generate_response(user_query, st.session_state.chat_history)
+    
+        with st.chat_message("assistant"):
+            ai_response = chatbot.generate_response(user_query, st.session_state.chat_history)  # Gera e exibe a resposta do chatbot
             st.markdown(ai_response)
 
+        # Adiciona a resposta do chatbot ao histórico
         st.session_state.chat_history.append(AIMessage(ai_response))
 
 
-# Ponto de entrada do Streamlit
+
 if __name__ == "__main__":
     main()
